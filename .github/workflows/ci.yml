@@ -4,28 +4,38 @@ on:
   push:
     branches: [main]
   pull_request:
+    branches: [main]
 
 jobs:
-  web:
+  ci:
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: apps/web
+
     steps:
-      - name: Checkout
-        uses: actions/checkout@v4
-      - name: Setup Node
-        uses: actions/setup-node@v4
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
         with:
-          node-version: 22
-          cache: npm
-      - name: Install
-        run: npm ci
+          node-version: "20"
+          cache: "npm"
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: cd ../.. && npm ci
+
+      - name: Type check
+        run: npx tsc --noEmit
+
       - name: Lint
-        run: npm run lint
-      - name: Typecheck
-        run: npm run typecheck
-      - name: Unit tests
-        run: npm run test
+        run: npx eslint .
+
+      - name: Tests
+        run: npx vitest run
+
       - name: Build
-        run: npm run build
+        run: npx next build
+        env:
+          NEXT_PUBLIC_SUPABASE_URL: ${{ secrets.NEXT_PUBLIC_SUPABASE_URL || 'http://localhost:54321' }}
+          NEXT_PUBLIC_SUPABASE_ANON_KEY: ${{ secrets.NEXT_PUBLIC_SUPABASE_ANON_KEY || 'dev-anon-key' }}
