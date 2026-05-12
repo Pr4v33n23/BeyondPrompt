@@ -1,7 +1,7 @@
-import type { CourseSummary } from "@/server/data/mock-catalog";
+import type { Course } from "@/lib/db/types";
 
 interface AdminContentTableProps {
-  courses: CourseSummary[];
+  courses: Course[];
 }
 
 export function AdminContentTable({ courses }: AdminContentTableProps) {
@@ -12,8 +12,8 @@ export function AdminContentTable({ courses }: AdminContentTableProps) {
           <tr>
             <th className="px-4 py-3 font-semibold">Title</th>
             <th className="px-4 py-3 font-semibold">Slug</th>
-            <th className="px-4 py-3 font-semibold">Modules</th>
-            <th className="px-4 py-3 font-semibold">Lessons</th>
+            <th className="px-4 py-3 font-semibold">Status</th>
+            <th className="px-4 py-3 font-semibold">Est. Minutes</th>
           </tr>
         </thead>
         <tbody>
@@ -21,8 +21,18 @@ export function AdminContentTable({ courses }: AdminContentTableProps) {
             <tr key={course.id} className="border-t border-zinc-200 dark:border-zinc-800">
               <td className="px-4 py-3">{course.title}</td>
               <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">{course.slug}</td>
-              <td className="px-4 py-3">{course.moduleCount}</td>
-              <td className="px-4 py-3">{course.lessonCount}</td>
+              <td className="px-4 py-3">
+                <span
+                  className={
+                    course.status === "published"
+                      ? "inline-flex items-center rounded-full bg-green-100 px-2 py-0.5 text-xs font-medium text-green-700 dark:bg-green-900/30 dark:text-green-400"
+                      : "inline-flex items-center rounded-full bg-zinc-100 px-2 py-0.5 text-xs font-medium text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+                  }
+                >
+                  {course.status}
+                </span>
+              </td>
+              <td className="px-4 py-3">{course.estimated_minutes}</td>
             </tr>
           ))}
         </tbody>
