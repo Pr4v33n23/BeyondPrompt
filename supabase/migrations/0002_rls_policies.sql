@@ -1,3 +1,4 @@
+-- Learner read policies
 alter table public.profiles enable row level security;
 alter table public.courses enable row level security;
 alter table public.modules enable row level security;
@@ -107,3 +108,40 @@ create policy "xp_events_own"
   for select
   to authenticated
   using (auth.uid() = user_id);
+
+-- Admin write policies
+create policy "admin_courses_all"
+  on public.courses for all
+  to authenticated
+  using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'))
+  with check (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+
+create policy "admin_modules_all"
+  on public.modules for all
+  to authenticated
+  using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'))
+  with check (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+
+create policy "admin_lessons_all"
+  on public.lessons for all
+  to authenticated
+  using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'))
+  with check (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+
+create policy "admin_quiz_questions_all"
+  on public.quiz_questions for all
+  to authenticated
+  using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'))
+  with check (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+
+create policy "admin_quiz_options_all"
+  on public.quiz_options for all
+  to authenticated
+  using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'))
+  with check (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
+
+create policy "admin_xp_events_all"
+  on public.xp_events for all
+  to authenticated
+  using (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'))
+  with check (exists (select 1 from public.profiles where id = auth.uid() and role = 'admin'));
