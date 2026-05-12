@@ -1,0 +1,916 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>AI Engineering Academy</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300..900;1,9..144,300..900&family=IBM+Plex+Mono:wght@400;500;600&family=Outfit:wght@300;400;500;600&display=swap" rel="stylesheet" />
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#04080F;--surface:#0A1020;--surface-2:#0D1628;--surface-3:#111827;
+  --border:rgba(34,211,238,0.1);--border-amber:rgba(245,158,11,0.15);
+  --amber:#F59E0B;--amber-l:#FCD34D;--amber-d:rgba(245,158,11,0.12);
+  --cyan:#22D3EE;--cyan-d:rgba(34,211,238,0.1);
+  --green:#4ADE80;--green-d:rgba(74,222,128,0.1);
+  --red:#F87171;--red-d:rgba(248,113,113,0.1);
+  --text:#CBD5E1;--text-b:#E2E8F0;--text-m:#475569;--text-d:#64748B;
+  --sw:272px;--hh:58px;--r:6px
+}
+html,body{height:100%;overflow:hidden}
+body{background:var(--bg);color:var(--text);font-family:'Outfit',sans-serif;font-size:15px;line-height:1.7;display:flex;flex-direction:column}
+::-webkit-scrollbar{width:4px}
+::-webkit-scrollbar-track{background:var(--surface)}
+::-webkit-scrollbar-thumb{background:var(--text-m);border-radius:2px}
+
+/* HEADER */
+#hdr{height:var(--hh);background:var(--surface);border-bottom:1px solid var(--border);display:flex;align-items:center;padding:0 20px;gap:16px;flex-shrink:0;z-index:10}
+.logo{font-family:'Fraunces',serif;font-size:16px;font-weight:800;color:var(--amber);letter-spacing:-0.02em;white-space:nowrap;font-variation-settings:'opsz' 18}
+.logo b{color:var(--cyan);font-weight:800}
+.hxp{flex:1;display:flex;align-items:center;gap:12px}
+#lvl-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;font-weight:600;color:var(--amber);background:var(--amber-d);border:1px solid rgba(245,158,11,0.35);padding:3px 9px;border-radius:3px;letter-spacing:0.08em;text-transform:uppercase;white-space:nowrap}
+.xp-wrap{flex:1;display:flex;align-items:center;gap:10px}
+.xp-track{flex:1;height:6px;background:var(--surface-2);border-radius:3px;overflow:hidden;border:1px solid var(--border)}
+#xp-fill{height:100%;background:linear-gradient(90deg,var(--amber),var(--amber-l));border-radius:3px;transition:width .7s cubic-bezier(.34,1.56,.64,1);width:0%}
+#xp-txt{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-d);white-space:nowrap}
+#xp-total{font-family:'IBM Plex Mono',monospace;font-size:12px;font-weight:600;color:var(--cyan);white-space:nowrap}
+
+/* LAYOUT */
+.app{flex:1;display:flex;overflow:hidden}
+
+/* SIDEBAR */
+.sidebar{width:var(--sw);flex-shrink:0;background:var(--surface);border-right:1px solid var(--border);overflow-y:auto;display:flex;flex-direction:column;position:relative}
+.sidebar::before{content:'';position:absolute;inset:0;background:repeating-linear-gradient(0deg,transparent,transparent 3px,rgba(34,211,238,.015) 3px,rgba(34,211,238,.015) 4px);pointer-events:none;z-index:0}
+.sb-head{padding:14px 16px 10px;position:sticky;top:0;background:var(--surface);z-index:1;border-bottom:1px solid var(--border)}
+.sb-label{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--text-m);text-transform:uppercase;margin-bottom:6px}
+.sb-prog{display:flex;align-items:center;gap:8px}
+.sb-prog-bar{flex:1;height:3px;background:var(--surface-2);border-radius:2px;overflow:hidden}
+.sb-prog-fill{height:100%;background:var(--amber);border-radius:2px;transition:width .5s ease}
+.sb-prog-txt{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-d);white-space:nowrap}
+#mod-list{list-style:none;padding:6px 0;position:relative;z-index:1;flex:1}
+.mi{display:flex;align-items:center;gap:10px;padding:9px 14px;cursor:pointer;border-left:2px solid transparent;transition:all .18s;position:relative}
+.mi:hover{background:rgba(34,211,238,.04)}
+.mi.active{background:rgba(34,211,238,.06);border-left-color:var(--cyan)}
+.mi.done{border-left-color:var(--amber)}
+.mi.done.active{border-left-color:var(--cyan)}
+.mi-num{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-m);width:18px;flex-shrink:0}
+.mi.active .mi-num{color:var(--cyan)}
+.mi-info{flex:1;min-width:0}
+.mi-title{font-size:13px;font-weight:500;color:var(--text-d);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;transition:color .18s}
+.mi.active .mi-title,.mi.done .mi-title{color:var(--text)}
+.mi.active .mi-title{color:var(--text-b)}
+.mi-xp{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-m);margin-top:1px}
+.mi.done .mi-xp{color:var(--amber)}
+.mi-check{width:15px;height:15px;border-radius:50%;background:var(--amber-d);border:1px solid var(--amber);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:9px;color:var(--amber);line-height:1}
+.sb-foot{padding:12px 16px;border-top:1px solid var(--border);position:sticky;bottom:0;background:var(--surface);z-index:1}
+.sb-reset{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-m);cursor:pointer;text-decoration:none;letter-spacing:.05em;transition:color .2s}
+.sb-reset:hover{color:var(--red)}
+
+/* MAIN */
+.main{flex:1;overflow-y:auto;position:relative}
+.main::before{content:'';position:fixed;top:var(--hh);right:0;width:500px;height:500px;background:radial-gradient(circle at top right,rgba(34,211,238,.04) 0%,transparent 60%);pointer-events:none;z-index:0}
+.main::after{content:'';position:fixed;bottom:0;left:var(--sw);width:400px;height:400px;background:radial-gradient(circle at bottom left,rgba(245,158,11,.03) 0%,transparent 60%);pointer-events:none;z-index:0}
+
+/* MODULE PAGE */
+.mpage{max-width:840px;margin:0 auto;padding:44px 48px 80px;position:relative;z-index:1}
+.meyebrow{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.15em;color:var(--cyan);text-transform:uppercase;margin-bottom:8px}
+.mtitle{font-family:'Fraunces',serif;font-size:44px;font-weight:800;color:var(--text-b);line-height:1.05;letter-spacing:-.02em;margin-bottom:8px;font-variation-settings:'opsz' 72}
+.msub{font-size:16px;color:var(--text-d);margin-bottom:36px;font-weight:300}
+.done-banner{display:flex;align-items:center;gap:16px;padding:16px 20px;background:rgba(74,222,128,.05);border:1px solid rgba(74,222,128,.2);border-radius:var(--r);margin-bottom:36px}
+.done-icon{font-size:24px;line-height:1}
+.done-text{font-size:14px;color:var(--green);font-weight:500}
+.done-sub{font-size:12px;color:var(--text-d);margin-top:2px}
+
+/* SECTION LABEL */
+.slabel{font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.15em;color:var(--text-m);text-transform:uppercase;margin-bottom:14px;display:flex;align-items:center;gap:10px}
+.slabel::after{content:'';flex:1;height:1px;background:var(--border)}
+
+/* CONCEPT */
+.concept{margin-bottom:36px}
+.concept p{color:var(--text);font-size:15px;line-height:1.75;margin-bottom:12px}
+.concept p:last-child{margin-bottom:0}
+.concept code{font-family:'IBM Plex Mono',monospace;font-size:13px;background:var(--surface-2);color:var(--cyan);padding:1px 6px;border-radius:3px;border:1px solid var(--border)}
+.concept strong{color:var(--text-b);font-weight:600}
+.concept em{color:var(--amber-l);font-style:italic}
+
+/* DIAGRAM */
+.diag-wrap{margin-bottom:36px}
+.diag-box{background:var(--surface);border:1px solid var(--border);border-radius:var(--r);padding:28px;overflow-x:auto}
+.dn{font-family:'IBM Plex Mono',monospace;font-size:11px;padding:8px 14px;border-radius:4px;text-align:center;white-space:nowrap;display:inline-block}
+.dn.cyan{background:var(--cyan-d);border:1px solid rgba(34,211,238,.3);color:var(--cyan)}
+.dn.amber{background:var(--amber-d);border:1px solid rgba(245,158,11,.35);color:var(--amber)}
+.dn.green{background:var(--green-d);border:1px solid rgba(74,222,128,.3);color:var(--green)}
+.dn.red{background:var(--red-d);border:1px solid rgba(248,113,113,.3);color:var(--red)}
+.dn.neu{background:var(--surface-2);border:1px solid var(--border);color:var(--text)}
+.dn.dim{background:transparent;border:1px dashed var(--border);color:var(--text-m)}
+.darr{font-family:'IBM Plex Mono',monospace;font-size:14px;color:var(--text-m);padding:0 8px;flex-shrink:0}
+.darr-d{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--text-m);text-align:center;padding:4px 0;line-height:1.2}
+.drow{display:flex;align-items:center;gap:0}
+.dcol{display:flex;flex-direction:column;align-items:center;gap:8px}
+.dvs{font-family:'Fraunces',serif;font-size:22px;font-weight:700;color:var(--text-m);padding:0 12px;align-self:center}
+.dgroup{background:rgba(34,211,238,.03);border:1px dashed rgba(34,211,238,.15);border-radius:6px;padding:16px;position:relative}
+.dgroup-lbl{position:absolute;top:-9px;left:12px;background:var(--surface);padding:0 6px;font-family:'IBM Plex Mono',monospace;font-size:9px;letter-spacing:.1em;color:var(--cyan);text-transform:uppercase}
+.ddiv{height:1px;background:var(--border);margin:12px 0}
+.dmono{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-d);line-height:1.8}
+
+/* TAKEAWAYS */
+.tkw{margin-bottom:36px}
+.tkw-list{display:flex;flex-direction:column;gap:8px}
+.tkw-item{display:flex;align-items:flex-start;gap:12px;padding:11px 15px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r);cursor:pointer;transition:all .18s}
+.tkw-item:hover{border-color:rgba(34,211,238,.2);background:rgba(34,211,238,.03)}
+.tkw-item.chk{border-color:rgba(74,222,128,.25);background:rgba(74,222,128,.04)}
+.tkw-box{width:17px;height:17px;border-radius:4px;border:1.5px solid var(--text-m);flex-shrink:0;display:flex;align-items:center;justify-content:center;margin-top:2px;transition:all .18s;font-size:10px;color:transparent}
+.tkw-item.chk .tkw-box{background:var(--green);border-color:var(--green);color:var(--bg);font-weight:700}
+.tkw-txt{font-size:14px;color:var(--text);line-height:1.5}
+.tkw-item.chk .tkw-txt{color:var(--text-d)}
+
+/* QUIZ */
+.quiz-wrap{margin-bottom:36px}
+.qq{margin-bottom:20px;padding:22px;background:var(--surface);border:1px solid var(--border);border-radius:var(--r)}
+.qnum{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-m);letter-spacing:.1em;margin-bottom:8px;display:flex;align-items:center;gap:8px}
+.xp-badge{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--amber);background:var(--amber-d);border:1px solid rgba(245,158,11,.3);padding:2px 7px;border-radius:3px}
+.qtxt{font-size:15px;font-weight:500;color:var(--text-b);margin-bottom:14px;line-height:1.5}
+.opts{display:flex;flex-direction:column;gap:7px}
+.opt{display:flex;align-items:flex-start;gap:10px;padding:10px 13px;border:1px solid var(--border);border-radius:4px;cursor:pointer;transition:all .15s;background:var(--surface-2)}
+.opt:hover:not(.locked){border-color:rgba(34,211,238,.25);background:rgba(34,211,238,.04)}
+.opt.correct{border-color:rgba(74,222,128,.5);background:rgba(74,222,128,.08)}
+.opt.wrong{border-color:rgba(248,113,113,.5);background:rgba(248,113,113,.08);animation:shake .4s ease}
+.opt.locked{cursor:default}
+@keyframes shake{0%,100%{transform:translateX(0)}20%{transform:translateX(-4px)}40%{transform:translateX(4px)}60%{transform:translateX(-3px)}80%{transform:translateX(3px)}}
+.opt-let{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--text-m);flex-shrink:0;margin-top:1px}
+.opt.correct .opt-let{color:var(--green)}
+.opt.wrong .opt-let{color:var(--red)}
+.opt-txt{font-size:13px;color:var(--text);line-height:1.5}
+.qexp{margin-top:12px;padding:10px 13px;background:rgba(74,222,128,.06);border:1px solid rgba(74,222,128,.2);border-radius:4px;font-size:13px;color:var(--green);line-height:1.5;display:none}
+.qexp.show{display:block}
+
+/* ACTIONS */
+.actions{display:flex;gap:10px;align-items:center;margin-bottom:40px;flex-wrap:wrap}
+.btn{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;letter-spacing:.05em;padding:11px 24px;border-radius:var(--r);cursor:pointer;transition:all .2s;text-transform:uppercase;border:1px solid}
+.btn-amber{background:var(--amber-d);border-color:var(--amber);color:var(--amber)}
+.btn-amber:hover:not(:disabled){background:var(--amber);color:var(--bg)}
+.btn-amber:disabled{opacity:.4;cursor:default}
+.btn-amber.done{background:var(--green-d);border-color:var(--green);color:var(--green)}
+.btn-amber.done:hover:not(:disabled){background:var(--green);color:var(--bg)}
+.btn-cyan{background:var(--cyan-d);border-color:var(--cyan);color:var(--cyan)}
+.btn-cyan:hover{background:var(--cyan);color:var(--bg)}
+.act-note{font-size:12px;color:var(--text-m)}
+
+/* XP FLOAT */
+.xp-float{position:fixed;font-family:'IBM Plex Mono',monospace;font-size:14px;font-weight:600;color:var(--amber);pointer-events:none;animation:floatUp 1.2s ease-out forwards;z-index:9999}
+@keyframes floatUp{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-55px)}}
+
+/* TOASTS */
+#toasts{position:fixed;top:70px;right:18px;z-index:9999;display:flex;flex-direction:column;gap:8px;pointer-events:none}
+.toast{background:rgba(10,16,32,.97);border:1px solid var(--border);border-radius:var(--r);padding:12px 15px;display:flex;gap:12px;align-items:flex-start;max-width:270px;animation:sIn .3s ease-out;box-shadow:0 4px 24px rgba(0,0,0,.5)}
+.toast.ach{border-color:rgba(245,158,11,.3)}
+@keyframes sIn{from{opacity:0;transform:translateX(20px)}to{opacity:1;transform:translateX(0)}}
+@keyframes sOut{from{opacity:1;transform:translateX(0)}to{opacity:0;transform:translateX(20px)}}
+.t-icon{font-size:18px;flex-shrink:0;line-height:1.2}
+.t-title{font-family:'IBM Plex Mono',monospace;font-size:11px;font-weight:600;color:var(--amber);margin-bottom:2px;letter-spacing:.05em}
+.t-msg{font-size:12px;color:var(--text-d);line-height:1.4}
+
+/* LEVEL UP */
+#lvlup{position:fixed;inset:0;background:rgba(4,8,15,.93);display:flex;align-items:center;justify-content:center;z-index:9998;animation:fadeIn .3s ease-out}
+#lvlup.hidden{display:none}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+.lu-box{text-align:center;padding:56px 72px;background:var(--surface);border:1px solid rgba(245,158,11,.4);border-radius:12px;box-shadow:0 0 80px rgba(245,158,11,.08)}
+.lu-label{font-family:'IBM Plex Mono',monospace;font-size:10px;letter-spacing:.3em;color:var(--amber);text-transform:uppercase;margin-bottom:14px}
+.lu-name{font-family:'Fraunces',serif;font-size:48px;font-weight:800;color:var(--text-b);letter-spacing:-.02em;margin-bottom:6px;font-variation-settings:'opsz' 72}
+.lu-sub{font-size:14px;color:var(--text-d);margin-bottom:28px}
+.lu-btn{font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-m);cursor:pointer;padding:10px 24px;border:1px solid var(--border);border-radius:4px;background:transparent;transition:all .2s}
+.lu-btn:hover{border-color:var(--amber);color:var(--amber)}
+
+/* DIAG TABLE */
+.dtable{width:100%;border-collapse:collapse;font-family:'IBM Plex Mono',monospace;font-size:11px}
+.dtable th{padding:10px 12px;text-align:center;border-bottom:1px solid var(--border);font-weight:600;letter-spacing:.05em}
+.dtable td{padding:8px 12px;border-bottom:1px solid rgba(34,211,238,.05)}
+.dtable td:first-child{color:var(--text-d);text-align:left}
+.dtable td:not(:first-child){text-align:center}
+</style>
+</head>
+<body>
+<div id="toasts"></div>
+<div id="lvlup" class="hidden">
+  <div class="lu-box">
+    <div class="lu-label">⬆ Level Up</div>
+    <div id="lu-name" class="lu-name"></div>
+    <div class="lu-sub">Keep building. You're not done yet.</div>
+    <button class="lu-btn" onclick="dismissLU()">Continue →</button>
+  </div>
+</div>
+
+<header id="hdr">
+  <div class="logo">AI<b>Eng</b>Academy</div>
+  <div class="hxp">
+    <span id="lvl-badge">APPRENTICE</span>
+    <div class="xp-wrap">
+      <div class="xp-track"><div id="xp-fill"></div></div>
+      <span id="xp-txt">0 / 200 XP</span>
+    </div>
+  </div>
+  <span id="xp-total">0 XP total</span>
+</header>
+
+<div class="app">
+  <aside class="sidebar">
+    <div class="sb-head">
+      <div class="sb-label">11 Modules · 1,760 XP max</div>
+      <div class="sb-prog">
+        <div class="sb-prog-bar"><div class="sb-prog-fill" id="sb-prog-fill" style="width:0%"></div></div>
+        <span class="sb-prog-txt" id="sb-prog-txt">0/11</span>
+      </div>
+    </div>
+    <ul id="mod-list"></ul>
+    <div class="sb-foot">
+      <span class="sb-reset" onclick="resetProgress()">Reset progress</span>
+    </div>
+  </aside>
+  <main id="main" class="main"></main>
+</div>
+
+<script>
+// ─────────────────────────────────────────────────────────────
+// DATA
+// ─────────────────────────────────────────────────────────────
+const LEVELS=[
+  {name:'Apprentice',min:0,max:199},
+  {name:'Junior Engineer',min:200,max:499},
+  {name:'Mid-Level Engineer',min:500,max:799},
+  {name:'Senior Engineer',min:800,max:1199},
+  {name:'Staff Engineer',min:1200,max:1499},
+  {name:'Principal Engineer',min:1500,max:1760},
+]
+
+const ACHIEVEMENTS=[
+  {id:'first',title:'First Blood',desc:'Complete your first module',icon:'🎯',t:s=>s.done.size===1},
+  {id:'halfway',title:'Halfway',desc:'Complete 6 modules',icon:'⚡',t:s=>s.done.size===6},
+  {id:'perfect',title:'Perfect Score',desc:'All 3 answers correct in one quiz',icon:'🏆',t:s=>s.perfectQ>0},
+  {id:'grad',title:'AI Engineer',desc:'Complete all 11 modules',icon:'🚀',t:s=>s.done.size===11},
+  {id:'senior',title:'Senior Engineer',desc:'Reach 800 XP',icon:'⭐',t:s=>s.xp>=800},
+  {id:'principal',title:'Principal Engineer',desc:'Reach 1,500 XP',icon:'👑',t:s=>s.xp>=1500},
+]
+
+const M=[
+  {
+    id:0,title:'Harness Engineering',sub:'The reliability layer around every model call',
+    concept:`<p><strong>The harness is not the prompt.</strong> When engineers encounter LLM unreliability — timeouts, malformed outputs, rate limit errors — they reach for the prompt. That's the wrong layer. The <strong>harness</strong> is the scaffolding <em>around</em> the model call: retry logic, timeout handling, response validation, and structured logging.</p>
+<p>A good harness makes a mediocre prompt robust. A bad harness makes a perfect prompt fragile. Think of the model as a powerful but unreliable function — the harness is the try/catch/retry wrapper that makes it production-safe.</p>
+<p>The four core harness concerns: <code>retry</code> (exponential backoff on transient errors), <code>timeout</code> (never block indefinitely), <code>validate</code> (check output conforms to expected schema), <code>log</code> (capture input, output, latency, model version, cost).</p>`,
+    diag:`<div style="display:flex;flex-direction:column;align-items:center;gap:0">
+  <div class="dn cyan" style="margin-bottom:8px">USER REQUEST</div>
+  <div class="darr-d">↓</div>
+  <div class="dgroup" style="margin:8px 0;width:100%;max-width:480px">
+    <div class="dgroup-lbl">HARNESS</div>
+    <div style="display:flex;gap:8px;justify-content:center;margin-bottom:14px;flex-wrap:wrap;padding-top:4px">
+      <div class="dn amber" style="font-size:10px">⟳ Retry / Backoff</div>
+      <div class="dn amber" style="font-size:10px">⏱ Timeout</div>
+      <div class="dn amber" style="font-size:10px">✓ Validate</div>
+      <div class="dn amber" style="font-size:10px">📋 Logger</div>
+    </div>
+    <div class="darr-d">↓</div>
+    <div style="display:flex;justify-content:center;margin:8px 0">
+      <div class="dn neu" style="padding:12px 32px;font-size:13px">LLM Model Call</div>
+    </div>
+    <div class="darr-d">↑</div>
+  </div>
+  <div class="darr-d">↓</div>
+  <div class="dn green" style="margin-top:8px">VALIDATED RESPONSE</div>
+</div>`,
+    tkw:['The harness is the reliability layer — the prompt is just one input','Retry + timeout + validate + log: the four harness pillars','A bad harness makes a good prompt fragile in production','Log every call: input, output, latency, cost, model version'],
+    quiz:[
+      {q:'What is the primary purpose of a harness in LLM engineering?',o:['Improve model accuracy on complex tasks','Provide reliability infrastructure around the model call','Reduce token costs through compression','Fine-tune the model on domain data'],c:1,exp:'The harness wraps the model call with retry, timeout, validation, and logging — reliability infrastructure. Accuracy comes from training and prompting, not the harness.'},
+      {q:'Which of these is NOT a typical harness responsibility?',o:['Retry logic on transient failures','Timeout handling','Updating model weights during inference','Response schema validation'],c:2,exp:'Model weights are fixed at training time — the harness cannot update them. Harness concerns are operational: retries, timeouts, and output validation at inference time.'},
+      {q:'In a well-designed system, the prompt is best described as:',o:['The most critical component that determines reliability','One input among many that the harness processes','The only place where errors should be handled','Responsible for retry and timeout logic'],c:1,exp:'The prompt is one input to the harness system. Over-indexing on the prompt while ignoring harness design creates systems that fail in production despite well-crafted prompts.'},
+    ]
+  },
+  {
+    id:1,title:'Prompt vs Semantic Caching',sub:'Exact match vs vector similarity — when to use which',
+    concept:`<p>Two fundamentally different caching strategies exist for LLM calls. <strong>Prompt caching</strong> (native to Anthropic and OpenAI) is an exact token-prefix match — the provider caches attention computation for identical prefix tokens, charging a reduced rate on hits. It's free, automatic, and requires no infrastructure.</p>
+<p><strong>Semantic caching</strong> is application-layer: embed queries into vector space and retrieve cached responses for semantically similar (not identical) inputs. It requires a vector database and embedding model, but achieves high hit rates for paraphrased or related queries.</p>
+<p>Key tradeoffs: prompt caching has <code>zero freshness risk</code> (same tokens = same context). Semantic caching introduces <code>staleness risk</code> — similar is not identical. Use both in production: prompt caching for free savings on repeated prefixes, semantic caching for high-volume Q&A where paraphrase hit rate matters.</p>`,
+    diag:`<div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap">
+  <div class="dcol" style="flex:1;min-width:180px">
+    <div class="dn cyan" style="width:100%">PROMPT CACHING</div>
+    <div class="darr-d">↓</div>
+    <div class="dn neu" style="width:100%;font-size:11px">Exact token-prefix match</div>
+    <div class="darr-d">↓</div>
+    <div class="dn green" style="width:100%;font-size:11px">Provider handles it — zero infra</div>
+    <div class="ddiv" style="width:100%"></div>
+    <div class="dmono" style="text-align:center">
+      <span style="color:var(--cyan)">Hit rate:</span> high on repeated calls<br>
+      <span style="color:var(--green)">Freshness risk:</span> zero<br>
+      <span style="color:var(--amber)">Setup:</span> none
+    </div>
+  </div>
+  <div class="dvs">vs</div>
+  <div class="dcol" style="flex:1;min-width:180px">
+    <div class="dn amber" style="width:100%">SEMANTIC CACHING</div>
+    <div class="darr-d">↓</div>
+    <div class="dn neu" style="width:100%;font-size:11px">Vector similarity match</div>
+    <div class="darr-d">↓</div>
+    <div class="dn amber" style="width:100%;font-size:11px">Embed → query vector DB</div>
+    <div class="ddiv" style="width:100%"></div>
+    <div class="dmono" style="text-align:center">
+      <span style="color:var(--cyan)">Hit rate:</span> high for paraphrases<br>
+      <span style="color:var(--red)">Freshness risk:</span> staleness possible<br>
+      <span style="color:var(--amber)">Setup:</span> vector DB + embeddings
+    </div>
+  </div>
+</div>`,
+    tkw:['Prompt caching = exact prefix match, handled by the provider — no infra required','Semantic caching = vector similarity, needs application-layer infrastructure','Prompt caching has zero freshness risk; semantic caching can return stale responses','Use both: different hit rates serve different query patterns'],
+    quiz:[
+      {q:'Native prompt caching (Anthropic/OpenAI) works by:',o:['Embedding prompts into vector space for similarity lookup','Exact token-prefix matching to reuse cached attention computation','Storing full responses in a Redis key-value store','Fine-tuning the model on common query patterns'],c:1,exp:'Provider-level prompt caching reuses the KV cache for attention computation when the exact same prefix tokens appear — no vectors, no app-layer infra. Same prefix = cache hit at a reduced rate.'},
+      {q:'Semantic caching is better suited for:',o:['Identical repeated prompts with the exact same wording','Queries with similar intent but different wording (paraphrases)','Reducing cost on the first unique call to a model','System prompt prefix caching'],c:1,exp:'Semantic caching uses vector similarity to find and return cached responses for semantically equivalent queries, even if worded differently. This is its core advantage over exact-match caching.'},
+      {q:'Which caching approach introduces the most freshness risk?',o:['Prompt caching only','Semantic caching only','Both introduce equal freshness risk','Neither introduces any freshness risk'],c:1,exp:'Semantic caching can return cached responses for similar-but-not-identical queries, where the cached answer may be outdated or contextually wrong for the specific request. Prompt caching only fires on exact prefix matches.'},
+    ]
+  },
+  {
+    id:2,title:'KV Cache Management',sub:'Attention state at scale — prefix sharing and isolation',
+    concept:`<p>The KV (Key-Value) cache stores the attention Key and Value matrices computed during the forward pass for each token. Reusing these matrices avoids recomputing attention from scratch on every request — this is the mechanism underlying provider-level prompt caching.</p>
+<p><strong>Prefix sharing</strong> is the key optimization: multiple concurrent requests that share the same system prompt can share a single KV cache entry for that prefix. In multi-tenant APIs where all requests start with the same system prompt, you compute it once and share it N times.</p>
+<p><strong>Eviction strategy</strong> matters at scale: LRU (Least Recently Used) is standard, but high-traffic prefixes should be pinned to avoid cache churn. <strong>Multi-tenant isolation</strong> is a security requirement — one tenant's cached context must never be accessible to another tenant's requests. This requires careful prefix namespacing or separate cache partitions per tenant.</p>`,
+    diag:`<div style="display:flex;flex-direction:column;gap:12px">
+  <div class="dn dim" style="text-align:center;font-size:10px;letter-spacing:.08em;width:100%">SHARED SYSTEM PROMPT → Computed Once, Cached in KV Store</div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <div class="dcol" style="flex:1;min-width:100px">
+      <div class="dn cyan" style="width:100%;font-size:11px;text-align:center">Request A</div>
+      <div class="darr-d">↓</div>
+      <div class="dn green" style="width:100%;font-size:10px;text-align:center">KV HIT ✓</div>
+    </div>
+    <div class="dcol" style="flex:1;min-width:100px">
+      <div class="dn cyan" style="width:100%;font-size:11px;text-align:center">Request B</div>
+      <div class="darr-d">↓</div>
+      <div class="dn green" style="width:100%;font-size:10px;text-align:center">KV HIT ✓</div>
+    </div>
+    <div class="dcol" style="flex:1;min-width:100px">
+      <div class="dn cyan" style="width:100%;font-size:11px;text-align:center">Request C</div>
+      <div class="darr-d">↓</div>
+      <div class="dn green" style="width:100%;font-size:10px;text-align:center">KV HIT ✓</div>
+    </div>
+  </div>
+  <div class="dn amber" style="text-align:center;width:100%;font-size:11px">Shared KV Cache Entry (System Prompt Prefix)</div>
+  <div class="ddiv"></div>
+  <div style="display:flex;gap:10px;justify-content:center;flex-wrap:wrap">
+    <div class="dn neu" style="font-size:10px">Eviction: LRU / pin hot prefixes</div>
+    <div class="dn red" style="font-size:10px">Isolation: per-tenant namespacing</div>
+  </div>
+</div>`,
+    tkw:['KV cache stores attention Key/Value matrices — reuse avoids recomputing attention','Prefix sharing: multiple requests with the same system prompt share one cache entry','Pin high-traffic prefixes to avoid LRU eviction churn','Multi-tenant isolation is a security requirement, not an optimization'],
+    quiz:[
+      {q:'What does the KV cache store?',o:['User session data and API authentication keys','Attention Key/Value matrices computed during the forward pass','Full model weights and biases for fast loading','Complete API response JSON for reuse'],c:1,exp:'The KV cache stores Key and Value attention matrices for each token in the forward pass. Reusing these avoids re-computing attention for tokens already seen — the core mechanism behind prompt caching performance gains.'},
+      {q:'Prefix sharing in the KV cache is most valuable when:',o:['Every request has a completely unique system prompt','Multiple concurrent requests share the same system prompt','Requests come from different users on different model versions','Quantization is enabled on the serving infrastructure'],c:1,exp:'When many requests share the same system prompt prefix, prefix sharing computes and caches that prefix once, then reuses it across all matching requests — dramatically reducing compute cost at scale.'},
+      {q:'Multi-tenant KV cache isolation is critical primarily for:',o:['Improving overall cache hit rates','Security — preventing one tenant\'s context from leaking to another tenant','Reducing total GPU memory usage','Faster tokenization throughput'],c:1,exp:'Without proper isolation, a tenant\'s cached context — which may contain sensitive system prompts or user data — could be accessible to other tenants\' requests. This is a security failure with potentially serious consequences.'},
+    ]
+  },
+  {
+    id:3,title:'Speculative Decoding vs Quantization',sub:'Speed vs size — two paths to faster inference',
+    concept:`<p>Both techniques improve inference performance but attack different bottlenecks. <strong>Speculative decoding</strong> addresses speed: a small, fast <em>draft model</em> generates candidate tokens, which the full target model verifies in a single parallel forward pass. Verification is cheaper than generation — if draft tokens are mostly correct, you get near-full-model quality at draft-model speed.</p>
+<p><strong>Quantization</strong> reduces model size by lowering numerical precision: FP32 → FP16 → INT8 → INT4. Each step halves the bits used per weight, shrinking memory footprint and enabling faster matrix operations — at the cost of accuracy. INT8 is generally safe; INT4 can introduce noticeable quality degradation on complex reasoning.</p>
+<p>Key distinction: speculative decoding preserves <code>exact output quality</code> — verified tokens are correct by construction. Quantization is lossy — lower precision always introduces some quality risk, worst at INT4.</p>`,
+    diag:`<div style="display:flex;align-items:flex-start;gap:20px;flex-wrap:wrap">
+  <div class="dcol" style="flex:1;min-width:180px">
+    <div class="dn cyan" style="width:100%">SPECULATIVE DECODING</div>
+    <div class="darr-d">↓</div>
+    <div class="dn neu" style="width:100%;font-size:11px;text-align:center">Draft model generates N tokens (fast)</div>
+    <div class="darr-d">↓</div>
+    <div class="dn neu" style="width:100%;font-size:11px;text-align:center">Target model verifies all N in parallel</div>
+    <div class="darr-d">↓</div>
+    <div class="dn green" style="width:100%;font-size:11px">Accept correct · reject rest</div>
+    <div class="ddiv" style="width:100%"></div>
+    <div class="dmono" style="text-align:center"><span style="color:var(--green)">Quality:</span> exact — zero degradation<br><span style="color:var(--amber)">Gain:</span> latency reduction</div>
+  </div>
+  <div class="dvs">vs</div>
+  <div class="dcol" style="flex:1;min-width:180px">
+    <div class="dn amber" style="width:100%">QUANTIZATION</div>
+    <div class="darr-d">↓</div>
+    <div style="display:flex;gap:6px;width:100%">
+      <div class="dn green" style="flex:1;font-size:10px;text-align:center">FP16<br><span style="opacity:.7">safe</span></div>
+      <div class="dn amber" style="flex:1;font-size:10px;text-align:center">INT8<br><span style="opacity:.7">good</span></div>
+      <div class="dn red" style="flex:1;font-size:10px;text-align:center">INT4<br><span style="opacity:.7">risky</span></div>
+    </div>
+    <div class="darr-d">↓</div>
+    <div class="dn neu" style="width:100%;font-size:11px;text-align:center">Smaller model · less GPU memory</div>
+    <div class="ddiv" style="width:100%"></div>
+    <div class="dmono" style="text-align:center"><span style="color:var(--red)">Quality:</span> lossy at INT4<br><span style="color:var(--amber)">Gain:</span> size + memory reduction</div>
+  </div>
+</div>`,
+    tkw:['Speculative decoding uses a draft model; the target verifies all tokens in one parallel pass','Speculative decoding preserves exact output quality — mathematically lossless','Quantization: FP16→INT8→INT4, each step trades quality for size and speed','INT8 is generally safe; INT4 risks noticeable quality loss on complex reasoning tasks'],
+    quiz:[
+      {q:'How does speculative decoding improve inference speed?',o:['It reduces the model\'s weight precision for faster computation','A draft model generates candidate tokens that the target model verifies in parallel','It skips validation for high-confidence token sequences','It uses a smaller tokenizer with fewer vocabulary entries'],c:1,exp:'Speculative decoding exploits the fact that verification (single parallel forward pass) is cheaper than sequential generation. The draft model speculatively proposes N tokens; the target accepts correct ones, giving near-full-model quality at draft-model speed.'},
+      {q:'The main tradeoff of INT4 quantization vs FP16 is:',o:['Inference speed vs training speed','Quality vs size/speed — INT4 is smaller and faster but may degrade accuracy','Latency vs throughput for concurrent requests','Training cost vs ongoing inference cost'],c:1,exp:'INT4 uses 4 bits instead of 16 bits per weight — 4x smaller, faster matrix ops — but the precision loss can meaningfully degrade model quality, especially on tasks requiring precise numerical reasoning.'},
+      {q:'Which inference optimization preserves exact output quality?',o:['INT4 quantization','INT8 quantization','Speculative decoding','Both FP16 and INT8 quantization'],c:2,exp:'Speculative decoding is lossless: the target model mathematically verifies each token, so accepted tokens are identical to what the target would have generated alone. All forms of quantization introduce some precision loss.'},
+    ]
+  },
+  {
+    id:4,title:'Structured Output Failures',sub:'Fallback chains and validation for production reliability',
+    concept:`<p>LLMs fail to produce valid structured output more often than engineers expect — especially on complex schemas, long outputs, or edge-case inputs. A production system needs a <strong>fallback chain</strong> that degrades gracefully rather than crashing.</p>
+<p>The canonical chain: <strong>① Retry</strong> with the same prompt (transient failures often self-correct). <strong>② Repair prompt</strong> — send the malformed output back with instructions to fix it. <strong>③ Regex/heuristic extraction</strong> — extract what you can from the malformed output. <strong>④ Default value</strong> — return a safe, known-good fallback. <strong>⑤ Human escalation</strong> — for high-stakes cases where none of the above is acceptable.</p>
+<p>Validation tools: <code>Pydantic</code> for Python schema validation, <code>JSON schema</code> for language-agnostic contracts, <code>Guardrails AI</code> for complex constraint enforcement. Always validate before using — never trust raw LLM output in structured pipelines.</p>`,
+    diag:`<div style="display:flex;align-items:center;gap:0;justify-content:center;flex-wrap:wrap;row-gap:10px">
+  <div class="dcol">
+    <div class="dn cyan" style="font-size:11px">LLM Call</div>
+    <div class="darr-d" style="color:var(--red);font-size:11px">✗ bad output</div>
+  </div>
+  <div class="darr">→</div>
+  <div class="dcol">
+    <div class="dn neu" style="font-size:10px">① Retry</div>
+    <div class="darr-d" style="color:var(--red);font-size:10px">✗ fail</div>
+  </div>
+  <div class="darr">→</div>
+  <div class="dcol">
+    <div class="dn neu" style="font-size:10px;text-align:center">② Repair<br>Prompt</div>
+    <div class="darr-d" style="color:var(--red);font-size:10px">✗ fail</div>
+  </div>
+  <div class="darr">→</div>
+  <div class="dcol">
+    <div class="dn neu" style="font-size:10px;text-align:center">③ Regex<br>Extract</div>
+    <div class="darr-d" style="color:var(--red);font-size:10px">✗ fail</div>
+  </div>
+  <div class="darr">→</div>
+  <div class="dcol">
+    <div class="dn amber" style="font-size:10px;text-align:center">④ Default<br>Value</div>
+    <div class="darr-d" style="color:var(--amber);font-size:10px">⚠ critical</div>
+  </div>
+  <div class="darr">→</div>
+  <div class="dn red" style="font-size:10px;text-align:center">⑤ Human<br>Review</div>
+</div>
+<div style="display:flex;gap:8px;justify-content:center;margin-top:20px;flex-wrap:wrap">
+  <div class="dn dim" style="font-size:10px">Pydantic</div>
+  <div class="dn dim" style="font-size:10px">JSON Schema</div>
+  <div class="dn dim" style="font-size:10px">Guardrails AI</div>
+  <div class="dn dim" style="font-size:10px">Outlines</div>
+</div>`,
+    tkw:['LLM structured output failures are common — never assume the first call succeeds','Fallback order: Retry → Repair → Regex → Default → Human escalation','Always validate with Pydantic or JSON Schema before using structured output','A default value is graceful degradation — better than a crash or exception'],
+    quiz:[
+      {q:'The correct order of a structured output fallback chain is:',o:['Default → Retry → Repair → Human escalation','Retry → Repair prompt → Regex extraction → Default → Human','Human → Regex extraction → Retry → Default','Repair prompt → Default → Retry → Human'],c:1,exp:'You exhaust cheap fixes first (retry, repair) before falling back to heuristic extraction, then a known-good default, and finally human review for critical cases. This order minimises cost and latency per failure.'},
+      {q:'Pydantic is used in structured LLM output pipelines to:',o:['Route requests to different model tiers','Validate that LLM outputs conform to expected Python type schemas','Count tokens before sending to the API','Cache similar responses for faster retrieval'],c:1,exp:'Pydantic enforces type schemas on LLM outputs. If the output doesn\'t match the expected shape, it raises a validation error that triggers the fallback chain. It\'s the gate between raw LLM text and your application logic.'},
+      {q:'Why include a "default value" step in the fallback chain?',o:['To improve the model\'s accuracy on future calls through feedback','To ensure the system returns something usable rather than crashing downstream','To reduce API costs on subsequent requests by avoiding retries','To bypass the need for human review in all cases'],c:1,exp:'A known-good default lets the system degrade gracefully — the user or downstream service gets a usable (if imperfect) result rather than an unhandled exception. This is especially important for non-critical outputs where partial answers are acceptable.'},
+    ]
+  },
+  {
+    id:5,title:'Evals — LLM-as-Judge + Human',sub:'Measuring output quality at scale',
+    concept:`<p>Evaluation is the hardest problem in LLM engineering — harder than prompting. Without evals, you're flying blind: you don't know if changes made things better or worse.</p>
+<p><strong>LLM-as-judge</strong>: use a capable model to score or compare outputs. Fast, cheap, scales to thousands of examples. The weakness: the judge is biased toward its own style and can be fooled by confident-sounding but wrong answers. Bias is systematic, not random — it must be calibrated against human ground truth.</p>
+<p><strong>Human eval</strong>: expensive and slow but authoritative. Human evals serve two roles: direct evaluation for small, high-stakes samples; and calibration data to tune LLM judge prompts and scoring thresholds.</p>
+<p>The <strong>hybrid strategy</strong>: humans label a golden set (200-500 examples), tune the LLM judge until it matches human labels at high agreement (85%+), then run the judge at production scale to catch regressions.</p>`,
+    diag:`<div style="display:flex;align-items:flex-start;gap:16px;flex-wrap:wrap">
+  <div class="dcol" style="flex:1;min-width:160px">
+    <div class="dn cyan" style="width:100%">LLM-as-Judge</div>
+    <div class="dmono" style="text-align:center;margin-top:8px">✓ Scales to 10,000s<br>✓ Cheap (~$0.01/eval)<br>✓ Fast (&lt;2s per call)<br>✗ Biased toward own style<br>✗ Overrates confident errors<br>✗ Needs calibration</div>
+  </div>
+  <div class="dcol" style="flex:1;min-width:160px">
+    <div class="dn amber" style="width:100%">Human Eval</div>
+    <div class="dmono" style="text-align:center;margin-top:8px">✓ Ground truth<br>✓ Catches subtle errors<br>✓ Domain nuance<br>✗ Expensive ($5-50/item)<br>✗ Slow (hours to days)<br>✗ Doesn't scale</div>
+  </div>
+  <div class="dcol" style="flex:1;min-width:160px">
+    <div class="dn green" style="width:100%">Hybrid Strategy</div>
+    <div class="dmono" style="text-align:center;margin-top:8px">① Human labels golden set<br>② Tune judge to match<br>③ Validate agreement rate<br>④ Run judge at scale<br>⑤ Re-calibrate on drift<br>→ Best of both</div>
+  </div>
+</div>`,
+    tkw:['Without evals you cannot know if prompt changes improved or regressed quality','LLM-as-judge scales cheaply but is systematically biased — requires calibration','Human eval provides ground truth; use for calibration, not continuous production eval','Hybrid: human labels a golden set → tune judge → run at scale'],
+    quiz:[
+      {q:'The key advantage of LLM-as-judge over human evaluation is:',o:['Higher accuracy and lower systematic bias','Speed and scale — thousands of evals cheaply and quickly','No need for any ground truth calibration data','Perfect calibration with zero systematic bias out of the box'],c:1,exp:'LLM judges can evaluate thousands of outputs in minutes at low cost, making them practical for catching regressions in CI and A/B testing prompt changes. Accuracy and bias require calibration work — it\'s not free.'},
+      {q:'Human evals serve best as:',o:['Primary evaluation running continuously at production scale','Ground truth calibration data to tune and validate LLM judges','A faster alternative to automated evaluation pipelines','A cheaper option when API costs exceed budget'],c:1,exp:'Human evaluation is expensive and slow but authoritative. Its highest-value use is creating a calibration dataset that lets you tune and validate an LLM judge until it reliably agrees with human judgment at scale.'},
+      {q:'A hybrid eval strategy means:',o:['Using two different LLM judge models and averaging their scores','Human calibration to create ground truth, then LLM judge running at scale','Running human and LLM evals on every production request','Randomly alternating between human review and automated scoring'],c:1,exp:'The hybrid strategy uses humans for ground truth calibration (small, expensive, authoritative) and LLM judges for scale (large, cheap, validated against the human labels). Each method does what it\'s uniquely suited for.'},
+    ]
+  },
+  {
+    id:6,title:'Cost Attribution',sub:'Feature-level cost tracking for ROI decisions',
+    concept:`<p>Total API cost per model tells you nothing about which features are worth their cost. <strong>Cost attribution</strong> means tagging every LLM call with its origin: feature name, user segment, request type, environment. This converts an opaque monthly bill into a per-feature P&L.</p>
+<p>Without attribution, engineering teams face a predictable failure mode: the total API bill grows, leadership panics, and engineers cut features indiscriminately — sometimes killing high-value features while retaining low-value ones.</p>
+<p>Implementation: add structured metadata to every API call (<code>feature_id</code>, <code>user_tier</code>, <code>request_type</code>), ship this to your logging/observability layer, aggregate in a data warehouse. The output: a table showing cost per feature per month, compared against value metrics (conversion, retention, usage). Features where cost &gt; value get cut or redesigned; features where cost &lt;&lt; value get more investment.</p>`,
+    diag:`<div style="display:flex;align-items:center;gap:20px;flex-wrap:wrap;justify-content:center">
+  <div class="dcol">
+    <div class="dn red" style="padding:16px 20px;text-align:center">BEFORE<br><span style="font-size:10px;opacity:.7">Total: $4,200/mo<br>Attribution: ???</span></div>
+    <div class="dmono" style="margin-top:8px;text-align:center">No attribution<br>Panic cuts</div>
+  </div>
+  <div class="darr" style="font-size:22px">→</div>
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <div class="dn green" style="font-size:11px;display:flex;justify-content:space-between;gap:20px;min-width:220px"><span>Summary generation</span><span style="color:var(--green)">$1,840</span></div>
+    <div class="dn amber" style="font-size:11px;display:flex;justify-content:space-between;gap:20px"><span>Search answer</span><span style="color:var(--amber)">$980</span></div>
+    <div class="dn cyan" style="font-size:11px;display:flex;justify-content:space-between;gap:20px"><span>Code assist</span><span style="color:var(--cyan)">$820</span></div>
+    <div class="dn neu" style="font-size:11px;display:flex;justify-content:space-between;gap:20px"><span>Onboarding flow</span><span>$340</span></div>
+    <div class="dn dim" style="font-size:11px;display:flex;justify-content:space-between;gap:20px"><span>Untagged / misc</span><span>$220</span></div>
+    <div class="dmono" style="text-align:center;margin-top:4px">Feature-level P&amp;L</div>
+  </div>
+</div>`,
+    tkw:['Total API cost per model is useless for ROI decisions — attribution at feature level is essential','Tag every LLM call: feature_id, user_tier, request_type, environment','Cost attribution enables per-feature P&L: compare cost to value metrics','High-cost + high-value features get investment; high-cost + low-value features get cut'],
+    quiz:[
+      {q:'Cost attribution at feature level (vs total per model) primarily enables:',o:['Lower API bills through automatic cost optimization','ROI decisions — knowing exactly which features justify their LLM cost','Better prompt engineering through token cost feedback','Faster inference by routing expensive features differently'],c:1,exp:'Feature-level attribution converts an opaque API bill into a per-feature cost comparable to value metrics (conversion, retention, usage). This enables precise ROI decisions: cut low-value features, invest in high-value ones.'},
+      {q:'Without cost attribution, engineering teams often:',o:['Over-optimize already inexpensive features','Indiscriminately cut features when total costs rise, sometimes killing high-value ones','Accurately identify which specific features to optimize or remove','Automatically reduce hallucination rates through cost pressure'],c:1,exp:'Without attribution, cost optimization becomes guesswork. Teams see a large total bill and cut the most visible or recently-added features — not necessarily the least valuable ones. Attribution prevents costly mistakes.'},
+      {q:'Cost tagging should happen at:',o:['The billing level only, aggregated monthly by model','Request level — each API call tagged with feature, user, and type metadata','Model level per API key only','Monthly summary reports after the billing cycle closes'],c:1,exp:'Attribution requires tagging at the individual request level — each API call includes metadata about what feature triggered it. Monthly summaries are the output of aggregating these tagged calls, not a substitute for them.'},
+    ]
+  },
+  {
+    id:7,title:'Agent Guardrails & Loop Budgets',sub:'Preventing infinite loops and runaway agents',
+    concept:`<p>Autonomous agents introduce a failure mode that doesn't exist in single-call LLM systems: <strong>infinite loops</strong>. Without guardrails, an agent can call tools indefinitely, burn through API budgets, trigger unintended side effects, and never return a result.</p>
+<p><strong>Loop budget</strong> = a hard limit on resources an agent can consume per run. Three axes: max iterations (steps), max tokens (input + output across all calls), max wall-clock time. When any limit is hit, the agent must stop and return whatever it has — partial is acceptable, infinite is not.</p>
+<p><strong>Tool call limits</strong> are a critical sub-guardrail: cap how many times a single tool can be called per run, and how many tools total. This prevents runaway chains and limits blast radius when tools have side effects (writes, deletes, external API calls).</p>
+<p>The failure mode to design against: agent hits its budget → <strong>graceful degradation</strong>, not crash. Return partial results, flag the truncation, let the caller decide how to handle it.</p>`,
+    diag:`<div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+  <div class="dn cyan" style="width:180px;text-align:center">Agent Start</div>
+  <div class="darr-d">↓</div>
+  <div class="dgroup" style="width:100%;max-width:440px">
+    <div class="dgroup-lbl">AGENT LOOP</div>
+    <div style="display:flex;flex-direction:column;align-items:center;gap:8px;padding-top:8px">
+      <div class="dn neu" style="width:200px;text-align:center;font-size:11px">Think → Plan → Act</div>
+      <div class="darr-d">↓</div>
+      <div class="dn neu" style="width:200px;text-align:center;font-size:11px">Call Tool(s)</div>
+      <div class="darr-d">↓</div>
+      <div class="dn dim" style="font-size:10px;text-align:center">Budget check: iterations / tokens / time</div>
+      <div style="display:flex;gap:24px;align-items:flex-start;margin-top:4px;flex-wrap:wrap;justify-content:center">
+        <div class="dmono" style="text-align:center"><span style="color:var(--green)">✓ within budget</span><br>↩ next iteration</div>
+        <div style="width:1px;height:36px;background:var(--border)"></div>
+        <div class="dcol">
+          <div class="dmono" style="color:var(--red)">✗ budget exceeded</div>
+          <div class="darr-d">↓</div>
+          <div class="dn amber" style="font-size:10px;text-align:center">Graceful stop<br>return partial</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>`,
+    tkw:['Agents without guardrails can loop infinitely and burn budget with side effects','Loop budget: max iterations + max tokens + max wall-clock time — enforce all three','Cap tool calls per tool and total per run to limit blast radius','On budget exhaustion: graceful degradation (return partial), never silent crash'],
+    quiz:[
+      {q:'A loop budget in an agent system defines:',o:['The model\'s context window size for each individual call','Maximum iterations, tokens, or time before the agent must stop and return','The number of concurrent API keys available for the agent to use','How many users can run the agent simultaneously'],c:1,exp:'A loop budget enforces hard resource limits on an agent run. When any limit (iterations, tokens, or time) is hit, the agent stops regardless of what it \'decides\' to do next — this prevents runaway execution.'},
+      {q:'When an agent hits its loop budget, the correct behavior is:',o:['Silently discard all progress and return null or empty','Crash with an unhandled exception and propagate to the user','Return partial results and flag the truncation to the caller','Retry the entire run from the beginning with a fresh context'],c:2,exp:'Graceful degradation means returning what the agent has accomplished so far, with a signal that the run was budget-limited. The caller can surface the partial result, retry, or escalate — the agent shouldn\'t decide unilaterally.'},
+      {q:'Tool call limits in agent guardrails primarily prevent:',o:['High-quality responses from being generated by capable tools','Runaway tool-calling loops that burn budget and create unintended side effects','Model hallucinations when selecting which tool to call','Slow tokenization of long tool schemas'],c:1,exp:'Without per-tool call limits, an agent could invoke a write or delete tool dozens of times, send hundreds of external API requests, or loop indefinitely. Tool limits cap the blast radius of any single agent run regardless of what the model decides.'},
+    ]
+  },
+  {
+    id:8,title:'LLM Observability',sub:'Tracing every call — latency, cost, quality, regressions',
+    concept:`<p>You cannot improve what you cannot see. <strong>LLM observability</strong> captures structured telemetry for every model interaction: what was sent, what came back, how long it took, how much it cost, and what quality score it received.</p>
+<p>The unit of observability is the <strong>span</strong> — a single named operation with start time, end time, and structured metadata. A <em>trace</em> is a tree of spans: the root span is the user request, child spans are individual LLM calls, tool calls, retrieval operations. This lets you pinpoint exactly where latency comes from in complex pipelines.</p>
+<p>Tools: <strong>Langfuse</strong> (open-source, self-hostable, excellent for LLM traces), <strong>Phoenix by Arize</strong> (strong eval integration), <strong>Helicone</strong> (proxy-based, minimal integration). Alert on: quality regression (eval score drops 5%+ from baseline), latency spike (P95 exceeds SLA), cost anomaly (spend 2x moving average).</p>`,
+    diag:`<div style="font-family:'IBM Plex Mono',monospace;font-size:11px;display:flex;flex-direction:column;gap:6px">
+  <div style="display:flex;align-items:center;gap:10px">
+    <div class="dn cyan" style="font-size:10px;min-width:130px;text-align:center">USER REQUEST</div>
+    <div style="color:var(--text-d);font-size:10px">root span · 2,340ms · $0.043</div>
+  </div>
+  <div style="margin-left:20px;border-left:1px solid var(--border);padding-left:14px;display:flex;flex-direction:column;gap:6px">
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="dn amber" style="font-size:10px;min-width:120px;text-align:center">LLM Call #1</div>
+      <div style="color:var(--text-d);font-size:10px">claude-opus-4 · 890ms · 2,100 tok</div>
+    </div>
+    <div style="margin-left:20px;border-left:1px solid var(--border);padding-left:14px">
+      <div style="display:flex;align-items:center;gap:10px">
+        <div class="dn neu" style="font-size:10px;min-width:110px;text-align:center">Tool Call</div>
+        <div style="color:var(--text-d);font-size:10px">search_docs · 340ms · 12 results</div>
+      </div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="dn amber" style="font-size:10px;min-width:120px;text-align:center">LLM Call #2</div>
+      <div style="color:var(--text-d);font-size:10px">claude-haiku-4 · 220ms · 840 tok</div>
+    </div>
+    <div style="display:flex;align-items:center;gap:10px">
+      <div class="dn green" style="font-size:10px;min-width:120px;text-align:center">Eval Span</div>
+      <div style="color:var(--text-d);font-size:10px">quality_score: 0.87 · ✓ pass</div>
+    </div>
+  </div>
+  <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px">
+    <div class="dn dim" style="font-size:10px">Langfuse</div>
+    <div class="dn dim" style="font-size:10px">Phoenix / Arize</div>
+    <div class="dn dim" style="font-size:10px">Helicone</div>
+  </div>
+</div>`,
+    tkw:['A span = one named operation: start, end, metadata (tokens, cost, model version)','Traces are trees of spans — they show exactly where latency and cost originate','Alert on: quality score regression, P95 latency spike, cost anomaly vs moving average','Tools: Langfuse (open-source), Phoenix (eval-integrated), Helicone (proxy-based)'],
+    quiz:[
+      {q:'Span-level tracing in LLM observability captures:',o:['Only the final response latency for the entire user request','Each LLM call, tool call, and retrieval step as a separate named operation with metadata','User behavior analytics and clickstream data','Model weights and activation patterns for debugging'],c:1,exp:'Span-level tracing gives a structured, hierarchical view of every operation in a pipeline — not just total latency but which specific step was slow, expensive, or failed. This is the foundation of actionable LLM debugging.'},
+      {q:'Langfuse and Phoenix (Arize) are tools for:',o:['LLM model fine-tuning and training pipeline management','LLM call tracing, observability, and eval integration','Prompt compression and token reduction optimization','Vector database indexing and management'],c:1,exp:'Langfuse and Phoenix are purpose-built LLM observability platforms — they capture traces, store evals, visualize pipelines, and alert on regressions. They\'re the Datadog/Grafana equivalent for LLM systems.'},
+      {q:'Alerting on quality regression in an LLM system requires:',o:['Manual review of every model response by a human reviewer','Automated eval scores attached to traces, tracked over time against a stable baseline','Disabling caching to ensure every response is freshly generated','Switching to a more capable model whenever scores drop'],c:1,exp:'Quality regression detection is only possible if you have automated eval scores running on production traffic, attached to traces, and compared to a stable baseline over time. Without this, regressions are invisible until users complain.'},
+    ]
+  },
+  {
+    id:9,title:'Model Routing & Graceful Fallback',sub:'Matching model capability to task complexity',
+    concept:`<p>Not every task needs your most capable — and most expensive — model. <strong>Model routing</strong> classifies each request by complexity and routes it to the right model in your fleet. Simple queries (extraction, classification, short generation) go to fast, cheap models. Complex tasks (multi-step reasoning, long synthesis, nuanced judgment) go to capable, expensive models.</p>
+<p>Routing signals: <strong>complexity</strong> (query length, reasoning steps required), <strong>cost budget</strong> (is this user on a free tier?), <strong>latency SLA</strong> (real-time vs batch), <strong>output type</strong> (structured vs open-ended). Routing can be static (rule-based) or dynamic (a classifier model that evaluates query complexity).</p>
+<p><strong>Graceful fallback cascade</strong> handles model failures: primary → fallback → cached response → human-in-the-loop. Design each step to be more conservative and more reliable than the previous. Never let a primary model failure propagate as a user-facing error when a fallback is available.</p>`,
+    diag:`<div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+  <div class="dn cyan" style="width:200px;text-align:center">Incoming Request</div>
+  <div class="darr-d">↓</div>
+  <div class="dn neu" style="width:200px;text-align:center;font-size:11px">Router / Classifier</div>
+  <div style="display:flex;gap:20px;margin-top:4px;flex-wrap:wrap;justify-content:center">
+    <div class="dcol">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-d);text-align:center;margin-bottom:4px">Simple task</div>
+      <div class="dn green" style="font-size:11px;text-align:center;min-width:130px">Haiku / Mini<br><span style="font-size:9px;opacity:.7">fast · cheap</span></div>
+    </div>
+    <div class="dcol">
+      <div style="font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--text-d);text-align:center;margin-bottom:4px">Complex task</div>
+      <div class="dn amber" style="font-size:11px;text-align:center;min-width:130px">Opus / GPT-4o<br><span style="font-size:9px;opacity:.7">capable · expensive</span></div>
+    </div>
+  </div>
+  <div class="ddiv" style="width:100%;margin:8px 0"></div>
+  <div style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--text-m);letter-spacing:.1em">FALLBACK CASCADE</div>
+  <div style="display:flex;align-items:center;gap:4px;flex-wrap:wrap;justify-content:center">
+    <div class="dn neu" style="font-size:10px">Primary</div>
+    <div class="darr">→</div>
+    <div class="dn amber" style="font-size:10px">Fallback</div>
+    <div class="darr">→</div>
+    <div class="dn dim" style="font-size:10px">Cached Response</div>
+    <div class="darr">→</div>
+    <div class="dn red" style="font-size:10px">Human</div>
+  </div>
+</div>`,
+    tkw:['Route simple queries to cheap models, complex queries to capable models','Routing signals: complexity, cost budget, latency SLA, output type','Fallback cascade: primary → fallback → cached response → human-in-the-loop','Static routing (rules) is simpler; dynamic routing (classifier) adapts to query variation'],
+    quiz:[
+      {q:'Model routing sends simple queries to cheaper models primarily because:',o:['Cheaper models are always lower quality and should be avoided','Matching model capability to task complexity optimises the cost/quality tradeoff','It reduces latency specifically for complex high-reasoning tasks','All models perform identically on simple extraction and classification tasks'],c:1,exp:'Simple tasks don\'t require frontier model capabilities — a smaller, faster, cheaper model achieves the same quality. Routing allocates compute budget where it creates the most value, not uniformly across all tasks.'},
+      {q:'A graceful fallback cascade routes in what order?',o:['Human review → cached response → primary model → fallback model','Primary model → fallback model → cached response → human-in-the-loop','Cached response → primary model → human review → fallback model','Fallback model → primary model → cached response → human review'],c:1,exp:'The cascade starts with the best option (primary model) and degrades progressively: to a fallback model on failure, then a cached response, then human review as a last resort. Each step is more conservative and reliable than the previous.'},
+      {q:'Which of these is NOT a valid model routing signal?',o:['Query complexity or estimated reasoning steps','User\'s cost tier or allocated budget','The model\'s training data cutoff date','Required response latency SLA'],c:2,exp:'Training cutoff date is a fixed property of the model, not a signal about the current request being routed. Complexity, cost tier, and latency SLA all directly inform which model should handle this specific request right now.'},
+    ]
+  },
+  {
+    id:10,title:'Fine-tune vs In-Context Learning',sub:'When to train vs when to prompt',
+    concept:`<p>The choice between <strong>in-context learning (ICL)</strong> and <strong>fine-tuning</strong> is one of the most consequential architectural decisions in an LLM product. Getting it wrong wastes significant engineering time or ongoing cost.</p>
+<p><strong>ICL (few-shot prompting)</strong>: place 3-20 examples directly in the prompt. No training required, works with any model, instant to update. Cost: every request pays for the example tokens. Works well for low-to-medium volume, frequently-changing tasks, or prototyping.</p>
+<p><strong>Fine-tuning</strong>: train the model on hundreds to thousands of examples, baking the pattern into weights. Per-request cost drops because you no longer need examples in context. But: training cost is upfront and significant, the model version is frozen, and updates require retraining. Pays off at high volume with consistent, stable format requirements.</p>
+<p>Decision rule: <code>volume low + format changing → ICL</code>. <code>volume high + format stable → fine-tune</code>. <code>unsure → start with ICL, fine-tune when cost threshold is hit</code>.</p>`,
+    diag:`<div style="overflow-x:auto">
+<table class="dtable">
+<thead>
+  <tr>
+    <th style="text-align:left;color:var(--text-d)"></th>
+    <th style="color:var(--cyan)">ICL / Few-shot</th>
+    <th style="color:var(--amber)">Fine-tuning</th>
+  </tr>
+</thead>
+<tbody>
+  <tr><td>Training needed</td><td style="color:var(--green)">None</td><td style="color:var(--red)">Yes (hours–days)</td></tr>
+  <tr><td>Per-request cost</td><td style="color:var(--red)">High (example tokens)</td><td style="color:var(--green)">Low (no examples needed)</td></tr>
+  <tr><td>Update speed</td><td style="color:var(--green)">Instant</td><td style="color:var(--red)">Retrain required</td></tr>
+  <tr><td>Best for volume</td><td style="color:var(--cyan)">Low to medium</td><td style="color:var(--cyan)">High</td></tr>
+  <tr><td>Format consistency</td><td style="color:var(--amber)">Variable</td><td style="color:var(--green)">High</td></tr>
+  <tr><td>Start here?</td><td style="color:var(--green)">✓ Always prototype first</td><td style="color:var(--amber)">When cost threshold hit</td></tr>
+</tbody>
+</table>
+</div>`,
+    tkw:['ICL: no training, instant updates, but you pay example token cost on every request','Fine-tuning: upfront training cost, lower per-request cost, format baked into weights','Always start with ICL — fine-tune only when volume makes per-request cost unsustainable','High volume + stable format = fine-tuning. Low volume + changing requirements = ICL'],
+    quiz:[
+      {q:'The primary advantage of ICL (few-shot prompting) over fine-tuning is:',o:['Better performance on high-volume production tasks at scale','No training required — instant to deploy and update, works with any model','Lower per-request token cost when running at scale','Better consistency when output format requirements are fixed and stable'],c:1,exp:'ICL requires zero training — drop examples in the prompt and it works immediately. You can update examples without retraining, try different models instantly, and prototype in minutes. The cost is per-request token overhead that grows with volume.'},
+      {q:'Fine-tuning is the better architectural choice when:',o:['You have 5 examples and want to prototype quickly this week','You need a one-off response on a novel task','You have high request volume with consistent, stable output format requirements','You want to avoid any upfront engineering and training costs'],c:2,exp:'Fine-tuning\'s advantages — no example tokens per request, high format consistency — only outweigh its costs (training time, retraining for updates) at high volume with stable, well-defined output requirements.'},
+      {q:'The key cost structure difference between ICL and fine-tuning is:',o:['Fine-tuning has no ongoing costs whatsoever after the initial training run','ICL costs more per-request (example tokens); fine-tuning costs upfront (training) but less per-request','Both have identical total cost at any request volume level','ICL is always cheaper at every volume level because it requires no training'],c:1,exp:'ICL pays on every request (example tokens in context), making it expensive at scale. Fine-tuning pays once upfront (training) and saves on every subsequent request. The crossover point where fine-tuning wins depends on total request volume.'},
+    ]
+  },
+]
+
+// ─────────────────────────────────────────────────────────────
+// STATE
+// ─────────────────────────────────────────────────────────────
+const SK='ai-academy-v3'
+let S={cur:0,xp:0,mxp:{},qs:{},done:new Set(),tkw:{},ach:new Set(),perfectQ:0}
+
+function save(){
+  const s={...S,done:[...S.done],ach:[...S.ach],
+    tkw:Object.fromEntries(Object.entries(S.tkw).map(([k,v])=>[k,[...v]]))}
+  localStorage.setItem(SK,JSON.stringify(s))
+}
+function load(){
+  try{
+    const r=JSON.parse(localStorage.getItem(SK)||'null')
+    if(!r)return
+    S.cur=r.cur||0;S.xp=r.xp||0;S.mxp=r.mxp||{}
+    S.qs=r.qs||{};S.done=new Set(r.done||[]);S.ach=new Set(r.ach||[])
+    S.perfectQ=r.perfectQ||0
+    S.tkw=Object.fromEntries(Object.entries(r.tkw||{}).map(([k,v])=>[k,new Set(v)]))
+  }catch(e){}
+}
+
+// ─────────────────────────────────────────────────────────────
+// LEVELS
+// ─────────────────────────────────────────────────────────────
+function curLvl(){for(let i=LEVELS.length-1;i>=0;i--)if(S.xp>=LEVELS[i].min)return LEVELS[i];return LEVELS[0]}
+function nextLvl(){const l=curLvl(),i=LEVELS.indexOf(l);return i<LEVELS.length-1?LEVELS[i+1]:null}
+
+function updateBar(){
+  const l=curLvl(),n=nextLvl()
+  document.getElementById('lvl-badge').textContent=l.name.toUpperCase()
+  document.getElementById('xp-total').textContent=`${S.xp} XP total`
+  if(n){
+    const pct=(S.xp-l.min)/(n.min-l.min)*100
+    document.getElementById('xp-fill').style.width=Math.min(100,pct)+'%'
+    document.getElementById('xp-txt').textContent=`${S.xp-l.min} / ${n.min-l.min} XP`
+  }else{
+    document.getElementById('xp-fill').style.width='100%'
+    document.getElementById('xp-txt').textContent='MAX LEVEL'
+  }
+  const pf=document.getElementById('sb-prog-fill')
+  const pt=document.getElementById('sb-prog-txt')
+  if(pf){pf.style.width=(S.done.size/11*100)+'%'}
+  if(pt){pt.textContent=`${S.done.size}/11`}
+}
+
+function awardXP(n,el){
+  const prev=curLvl()
+  S.xp+=n
+  const next=curLvl()
+  updateBar();save()
+  if(el)floatXP(n,el)
+  if(next!==prev)setTimeout(()=>showLU(next.name),600)
+  checkAch()
+}
+
+function floatXP(n,el){
+  const r=el.getBoundingClientRect()
+  const f=document.createElement('div')
+  f.className='xp-float';f.textContent=`+${n} XP`
+  f.style.left=(r.left+r.width/2-24)+'px';f.style.top=(r.top-8)+'px'
+  document.body.appendChild(f);setTimeout(()=>f.remove(),1300)
+}
+
+// ─────────────────────────────────────────────────────────────
+// ACHIEVEMENTS & TOASTS
+// ─────────────────────────────────────────────────────────────
+function checkAch(){
+  ACHIEVEMENTS.forEach(a=>{
+    if(!S.ach.has(a.id)&&a.t(S)){
+      S.ach.add(a.id);save()
+      setTimeout(()=>toast(a.title,a.desc,'ach',a.icon),300)
+    }
+  })
+}
+
+function toast(title,msg,type='',icon='⭐'){
+  const c=document.getElementById('toasts')
+  const el=document.createElement('div')
+  el.className=`toast ${type}`
+  el.innerHTML=`<div class="t-icon">${icon}</div><div><div class="t-title">${title}</div><div class="t-msg">${msg}</div></div>`
+  c.appendChild(el)
+  setTimeout(()=>{el.style.animation='sOut .3s ease-in forwards';setTimeout(()=>el.remove(),300)},3500)
+}
+
+function showLU(name){document.getElementById('lu-name').textContent=name;document.getElementById('lvlup').classList.remove('hidden')}
+function dismissLU(){document.getElementById('lvlup').classList.add('hidden')}
+
+// ─────────────────────────────────────────────────────────────
+// SIDEBAR
+// ─────────────────────────────────────────────────────────────
+function renderSidebar(){
+  const list=document.getElementById('mod-list')
+  list.innerHTML=M.map(m=>{
+    const active=S.cur===m.id,done=S.done.has(m.id)
+    const xp=S.mxp[m.id]||0
+    return`<li class="mi${active?' active':''}${done?' done':''}" onclick="goMod(${m.id})">
+      <span class="mi-num">${String(m.id+1).padStart(2,'0')}</span>
+      <div class="mi-info">
+        <div class="mi-title">${m.title}</div>
+        <div class="mi-xp">${done?`${xp} XP earned`:xp>0?`${xp} XP in progress`:'160 XP'}</div>
+      </div>
+      ${done?'<div class="mi-check">✓</div>':''}
+    </li>`
+  }).join('')
+  updateBar()
+}
+
+// ─────────────────────────────────────────────────────────────
+// MODULE RENDER
+// ─────────────────────────────────────────────────────────────
+function goMod(id){S.cur=id;save();renderSidebar();renderMod(id);document.getElementById('main').scrollTop=0}
+
+function renderMod(id){
+  const m=M[id],done=S.done.has(id)
+  const qxp=Object.values(S.qs[id]||{}).filter(q=>q.ok).length*20
+  document.getElementById('main').innerHTML=`<div class="mpage">
+    <div class="meyebrow">Module ${String(id+1).padStart(2,'0')} of ${M.length}</div>
+    <h1 class="mtitle">${m.title}</h1>
+    <p class="msub">${m.sub}</p>
+    ${done?`<div class="done-banner"><div class="done-icon">✓</div><div>
+      <div class="done-text">Module complete — ${S.mxp[id]||0} XP earned</div>
+      <div class="done-sub">Review anytime. Progress is saved.</div>
+    </div></div>`:''}
+    <div class="concept">
+      <div class="slabel">Concept</div>
+      ${m.concept}
+    </div>
+    <div class="diag-wrap">
+      <div class="slabel">Visual</div>
+      <div class="diag-box">${m.diag}</div>
+    </div>
+    <div class="tkw">
+      <div class="slabel">Key Takeaways</div>
+      <div class="tkw-list">
+        ${m.tkw.map((t,i)=>{
+          const chk=(S.tkw[id]||new Set()).has(i)
+          return`<div class="tkw-item${chk?' chk':''}" data-mid="${id}" data-idx="${i}" onclick="toggleTkw(${id},${i})">
+            <div class="tkw-box">${chk?'✓':''}</div>
+            <div class="tkw-txt">${t}</div>
+          </div>`
+        }).join('')}
+      </div>
+    </div>
+    <div class="quiz-wrap">
+      <div class="slabel">Knowledge Check <span id="qxp-lbl" style="font-family:'IBM Plex Mono',monospace;font-size:9px;color:var(--amber);margin-left:8px">${qxp}/60 XP</span></div>
+      ${m.quiz.map((_,qi)=>renderQ(id,qi)).join('')}
+    </div>
+    <div class="actions">
+      <button id="btn-done" class="btn btn-amber${done?' done':''}" ${done?'disabled':''} onclick="markDone(${id})">
+        ${done?'✓ Complete':'Mark Complete · +100 XP'}
+      </button>
+      ${id<M.length-1?`<button class="btn btn-cyan" onclick="goMod(${id+1})">Next →</button>`:''}
+    </div>
+  </div>`
+}
+
+function renderQ(mid,qi){
+  const q=M[mid].quiz[qi]
+  const qs=S.qs[mid]?.[qi]||{}
+  const locked=!!qs.ok
+  const wrong=qs.wrong||[]
+  const L=['A','B','C','D']
+  return`<div class="qq" id="q-${mid}-${qi}">
+    <div class="qnum">Q${qi+1} of 3${qs.ok?` <span class="xp-badge">+20 XP</span>`:''}</div>
+    <div class="qtxt">${q.q}</div>
+    <div class="opts">
+      ${q.o.map((opt,oi)=>{
+        let cls=''
+        if(locked){cls='locked ';if(oi===q.c)cls+='correct';else if(wrong.includes(oi))cls+='wrong'}
+        else{if(wrong.includes(oi))cls='locked wrong'}
+        const clickable=!locked&&!wrong.includes(oi)
+        return`<div class="opt ${cls}"${clickable?` onclick="ansQ(${mid},${qi},${oi})"`:''}>
+          <span class="opt-let">${L[oi]}</span>
+          <span class="opt-txt">${opt}</span>
+        </div>`
+      }).join('')}
+    </div>
+    ${locked?`<div class="qexp show">${q.exp}</div>`:''}
+  </div>`
+}
+
+// ─────────────────────────────────────────────────────────────
+// INTERACTIONS
+// ─────────────────────────────────────────────────────────────
+function toggleTkw(mid,idx){
+  if(!S.tkw[mid])S.tkw[mid]=new Set()
+  const s=S.tkw[mid]
+  if(s.has(idx))s.delete(idx);else s.add(idx)
+  save()
+  const el=document.querySelector(`[data-mid="${mid}"][data-idx="${idx}"]`)
+  if(el){
+    el.classList.toggle('chk',s.has(idx))
+    el.querySelector('.tkw-box').textContent=s.has(idx)?'✓':''
+  }
+}
+
+function ansQ(mid,qi,oi){
+  const q=M[mid].quiz[qi]
+  const cur=S.qs[mid]?.[qi]||{ok:false,wrong:[]}
+  if(cur.ok)return
+  const wrong=[...(cur.wrong||[])]
+  if(!S.qs[mid])S.qs[mid]={}
+  if(oi===q.c){
+    S.qs[mid][qi]={ok:true,wrong}
+    S.mxp[mid]=(S.mxp[mid]||0)+20
+    // check perfect quiz
+    const allOk=M[mid].quiz.every((_,i)=>S.qs[mid][i]?.ok)
+    if(allOk){S.perfectQ++;checkAch()}
+    save();renderSidebar()
+    const el=document.getElementById(`q-${mid}-${qi}`)
+    if(el)el.outerHTML=renderQ(mid,qi)
+    const nel=document.getElementById(`q-${mid}-${qi}`)
+    awardXP(20,nel)
+    const lbl=document.getElementById('qxp-lbl')
+    const qxp=Object.values(S.qs[mid]||{}).filter(q=>q.ok).length*20
+    if(lbl)lbl.textContent=`${qxp}/60 XP`
+  }else{
+    wrong.push(oi)
+    S.qs[mid][qi]={ok:false,wrong}
+    save()
+    const el=document.getElementById(`q-${mid}-${qi}`)
+    if(el)el.outerHTML=renderQ(mid,qi)
+  }
+}
+
+function markDone(mid){
+  if(S.done.has(mid))return
+  S.done.add(mid)
+  S.mxp[mid]=(S.mxp[mid]||0)+100
+  const btn=document.getElementById('btn-done')
+  awardXP(100,btn);save();renderSidebar();checkAch()
+  if(btn){btn.textContent='✓ Complete';btn.classList.add('done');btn.disabled=true}
+  const msub=document.querySelector('.msub')
+  if(msub&&!document.querySelector('.done-banner')){
+    const b=document.createElement('div');b.className='done-banner'
+    b.innerHTML=`<div class="done-icon">✓</div><div>
+      <div class="done-text">Module complete — ${S.mxp[mid]} XP earned</div>
+      <div class="done-sub">Review anytime. Progress is saved.</div>
+    </div>`
+    msub.after(b)
+  }
+  toast('Module Complete',`+100 XP · ${M[mid].title}`,'ach','🎯')
+}
+
+function resetProgress(){
+  if(!confirm('Reset all progress? This cannot be undone.'))return
+  localStorage.removeItem(SK)
+  S={cur:0,xp:0,mxp:{},qs:{},done:new Set(),tkw:{},ach:new Set(),perfectQ:0}
+  renderSidebar();renderMod(0);updateBar()
+}
+
+// ─────────────────────────────────────────────────────────────
+// INIT
+// ─────────────────────────────────────────────────────────────
+load();renderSidebar();renderMod(S.cur);updateBar()
+</script>
+</body>
+</html>
