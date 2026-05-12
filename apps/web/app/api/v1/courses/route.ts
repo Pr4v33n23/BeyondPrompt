@@ -1,7 +1,16 @@
 import { NextResponse } from "next/server";
-import { ok } from "@/lib/api/response";
-import { listCourses } from "@/server/data/mock-catalog";
+import { ok, fail } from "@/lib/api/response";
+import { apiErrors } from "@/lib/api/errors";
+import { listPublishedCourses } from "@/server/repositories/courses";
 
 export async function GET() {
-  return NextResponse.json(ok({ courses: listCourses() }));
+  try {
+    const courses = await listPublishedCourses();
+    return NextResponse.json(ok({ courses }));
+  } catch (err) {
+    return NextResponse.json(
+      fail(apiErrors.internal(err instanceof Error ? err.message : "Unknown error")),
+      { status: 500 },
+    );
+  }
 }
